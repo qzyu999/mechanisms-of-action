@@ -48,8 +48,7 @@ def run(fold):
 
 if __name__ == "__main__":
     ### Create OVR target vectors
-    # X = pd.read_csv('../input/train_features.csv')
-    y = pd.read_csv('../input/train_targets_scored.csv')
+    y = pd.read_csv(config.TARGETS_FILE)
     class_counts = y.iloc[:,1:].sum(axis=0)
     class_counts = class_counts.sort_values(ascending=False)
     class_counts_sub = class_counts.head(12)
@@ -76,7 +75,7 @@ if __name__ == "__main__":
     for i in binary_vector_list:
         y_temp = copy.deepcopy(i)
         class_name = y_temp.columns[0]
-        X = pd.read_csv('../input/train_features.csv')
+        X = pd.read_csv(config.FEATURES_FILE)
         X.drop(X.columns[0], axis=1, inplace=True)
         
         # Save the column names
