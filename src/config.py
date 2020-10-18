@@ -9,4 +9,6 @@ FEATURES_FILE = '../input/train_features.csv'
 
 TARGETS_FILE = '../input/train_targets_scored.csv'
 
+NONSCORED_TARGETS = '../input/train_targets_nonscored.csv'
+
 OUTPUT_FILE = "../output/"
