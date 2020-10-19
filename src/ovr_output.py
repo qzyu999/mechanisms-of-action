@@ -55,12 +55,18 @@ def generate_OVR_targets():
     """Generate the list of binary OVR target vectors that will be tested.
     """
     y = pd.read_csv(config.TARGETS_FILE)
+
+    # Add hidden class
+    zero_class_indices = y[y.iloc[:,1:].apply(sum, axis=1) == 0].index
+    y['hidden_class'] = 0
+    y['hidden_class'].iloc[zero_class_indices] = 1
+    
     class_counts = y.iloc[:,1:].sum(axis=0)
     class_counts = class_counts.sort_values(ascending=False)
     
     ### Hard coded # of classes
-
-    class_counts_sub = class_counts.head(12)
+    
+    class_counts_sub = class_counts.head(13)
     retained_classes = class_counts_sub.index.values
     y2 = y.iloc[:,1:]
 
@@ -88,6 +94,7 @@ if __name__ == "__main__":
     # Edit to use it for sample submission
     nonscored_targets = pd.read_csv(config.SAMPLE_SUBMISSION)
     nonscored_targets.replace(0.5, 0, inplace=True)
+    nonscored_targets['hidden_class'] = 0
 
     ### Can OHE and standard scale the X_train first
     X_train, X_test = preprocess_X()
@@ -107,7 +114,7 @@ if __name__ == "__main__":
         y_pred_probs = model.predict_proba(X_test)
 
         # Update predicted probabilities
-        nonscored_targets.loc[:,class_name] = y_pred_probs[:,0]
+        nonscored_targets.loc[:,class_name] = y_pred_probs[:,1]
 
     # Go through each row and find the column with the larget value
     chosen_classes_per_row = nonscored_targets.iloc[:,1:].idxmax(axis=1)
@@ -117,5 +124,8 @@ if __name__ == "__main__":
         max_class = chosen_classes_per_row[index] # Subset the selected class
         row[row.index.isin([max_class, 'sig_id']) == False] = 0
         nonscored_targets.iloc[index,:] = row
+
+    # drop the hidden_class column
+    nonscored_targets.drop(['hidden_class'], axis=1, inplace=True)
 
     nonscored_targets.to_csv(config.OUTPUT_FILE, index=False)
