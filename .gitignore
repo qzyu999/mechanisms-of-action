@@ -7,3 +7,7 @@ output/
 notebooks/.ipynb_checkpoints/check_data-checkpoint.ipynb
 notebooks/.ipynb_checkpoints/exploration-checkpoint.ipynb
 src/__pycache__/config.cpython-37.pyc
+.Rproj.user
+notebooks/test iterative.ipynb
+r_scripts/p1.png r_scripts/p2.png r_scripts/p3.png r_scripts/p4.png r_scripts/p5.png r_scripts/p6.png r_scripts/p7.png r_scripts/p8.png
+notebooks/.ipynb_checkpoints/test iterative-checkpoint.ipynb
