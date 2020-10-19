@@ -5,10 +5,12 @@ MODEL_OUTPUT = "../models/"
 
 TESTING_FILE = "../input/test_features.csv"
 
-FEATURES_FILE = '../input/train_features.csv'
+FEATURES_FILE = "../input/train_features.csv"
 
-TARGETS_FILE = '../input/train_targets_scored.csv'
+TARGETS_FILE = "../input/train_targets_scored.csv"
 
-NONSCORED_TARGETS = '../input/train_targets_nonscored.csv'
+NONSCORED_TARGETS = "../input/train_targets_nonscored.csv"
+
+SAMPLE_SUBMISSION = "../input/sample_submission.csv"
 
 OUTPUT_FILE = "../output/"

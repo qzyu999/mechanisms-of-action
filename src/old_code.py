@@ -34,7 +34,7 @@
 #     auc = metrics.roc_auc_score(y_valid, y_preds,
 #         labels=model.classes_)
 #     accuracy = metrics.accuracy_score(y_valid, y_preds)
-    
+
 #     print(f"Fold={fold}, Log-Loss={log_loss_score}, AUC={auc}, Accuracy={accuracy}")
 
 # if __name__ == "__main__":
@@ -68,7 +68,7 @@
 #         class_name = y_temp.columns[0]
 #         X = pd.read_csv('../input/train_features.csv')
 #         X.drop(X.columns[0], axis=1, inplace=True)
-        
+
 #         # Save the column names
 #         X_col_names = X.columns.tolist()
 
@@ -93,9 +93,9 @@
 #             remainder='passthrough')
 #         X = pd.DataFrame(ct.fit_transform(X))
 #         X.columns = ohe_names
-        
+
 #         y_temp.columns = ['target']
-        
+
 #         df = pd.concat([X, y_temp], axis=1) # Recombine into single df
 
 #         df['kfold'] = -1 # Create k-folds column
@@ -110,7 +110,7 @@
 #         # Fill the 'kfold' column with the assigned folds
 #         for f, (t_, v_) in enumerate(kf.split(X=df, y=y)):
 #             df.loc[v_, 'kfold'] = f
-            
+
 #         print(class_name)
 #         for fold_ in range(5):
 #             run(fold_)
