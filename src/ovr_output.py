@@ -14,8 +14,8 @@ def preprocess_X():
     """The preprocess_X() function will do the initial preprocessing for the
         dataset features.
     """
-    X = pd.read_csv("../input/train_features.csv")
-    X_test = pd.read_csv("../input/test_features.csv")
+    X = pd.read_csv(config.FEATURES_FILE)
+    X_test = pd.read_csv(config.TESTING_FILE)
     X.drop(X.columns[0], axis=1, inplace=True)
     X_test.drop(X_test.columns[0], axis=1, inplace=True)
 
@@ -54,7 +54,7 @@ def preprocess_X():
 def generate_OVR_targets():
     """Generate the list of binary OVR target vectors that will be tested.
     """
-    y = pd.read_csv("../input/train_targets_scored.csv")
+    y = pd.read_csv(config.TARGETS_FILE)
     class_counts = y.iloc[:,1:].sum(axis=0)
     class_counts = class_counts.sort_values(ascending=False)
     
@@ -118,4 +118,4 @@ if __name__ == "__main__":
         row[row.index.isin([max_class, 'sig_id']) == False] = 0
         nonscored_targets.iloc[index,:] = row
 
-    nonscored_targets.to_csv('../output/submission.csv', index=False)
+    nonscored_targets.to_csv(config.OUTPUT_FILE, index=False)

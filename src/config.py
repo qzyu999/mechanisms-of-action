@@ -13,4 +13,4 @@ NONSCORED_TARGETS = "../input/train_targets_nonscored.csv"
 
 SAMPLE_SUBMISSION = "../input/sample_submission.csv"
 
-OUTPUT_FILE = "../output/"
+OUTPUT_FILE = "../output/submission.csv"
