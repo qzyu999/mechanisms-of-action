@@ -99,6 +99,7 @@ if __name__ == "__main__":
     ### Can OHE and standard scale the X_train first
     X_train, X_test = preprocess_X()
 
+    # Loop through the ovr_targets and fit a model for each class
     for i in ovr_targets:
         y_temp = copy.deepcopy(i)
         class_name = y_temp.columns[0]
@@ -120,6 +121,7 @@ if __name__ == "__main__":
     chosen_classes_per_row = nonscored_targets.iloc[:,1:].idxmax(axis=1)
 
     # Reference: https://stackoverflow.com/questions/16476924/how-to-iterate-over-rows-in-a-dataframe-in-pandas
+    # Zero out the attributes per row that are no maximum via OVR
     for index, row in nonscored_targets.iterrows():
         max_class = chosen_classes_per_row[index] # Subset the selected class
         row[row.index.isin([max_class, 'sig_id']) == False] = 0
