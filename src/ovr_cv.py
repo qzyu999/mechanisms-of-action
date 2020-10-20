@@ -144,7 +144,7 @@ def multilabel_log_loss(y_valid, y_pred):
     return log_loss_score
 
 
-def run_cv(fold, df, chosen_classes):
+def run_cv(fold, df, chosen_classes, log_loss_list):
     """Run the cross-validation."""
     df_train = df[df.kfold != fold].reset_index(drop=True)
     df_valid = df[df.kfold == fold].reset_index(drop=True)
@@ -203,10 +203,14 @@ def run_cv(fold, df, chosen_classes):
     log_loss_score = multilabel_log_loss(y_valid=y_valid, y_pred=non_scored_y_valid)
 
     print(f"Fold={fold}, Log-Loss={log_loss_score}")
+    log_loss_list.append(log_loss_score)
 
 
 if __name__ == "__main__":
     df, chosen_classes = preprocess_data()
 
+    log_loss_list = []
     for fold_ in range(5):
-        run_cv(fold_, df, chosen_classes)
+        run_cv(fold_, df, chosen_classes, log_loss_list)
+
+    print(f"CV average={np.mean(log_loss_list)}")
