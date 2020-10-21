@@ -211,6 +211,6 @@ if __name__ == "__main__":
 
     log_loss_list = []
     for fold_ in range(5):
-       run_cv(fold_, df, chosen_classes, log_loss_list)
+        run_cv(fold_, df, chosen_classes, log_loss_list)
 
     print(f"CV average={np.mean(log_loss_list)}")

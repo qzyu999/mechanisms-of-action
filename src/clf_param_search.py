@@ -1,4 +1,7 @@
-# ovr_msfk_cv.py
+# clf_param_search.py
+# The goal here is to build upon model_tuning_cv.py, by allowing for multiple
+# classifiers and parameters to be grid searched.
+
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import StratifiedKFold
@@ -6,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import linear_model
 import numpy as np
 import pandas as pd
+import itertools
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 import copy
 import config
@@ -107,7 +111,16 @@ def binary_msfk_fun(y_df, chosen_classes):
     return binary_vector_list
 
 
-def run_cv(fold, X, y, train_idx_list, valid_idx_list, chosen_classes, log_loss_list):
+def run_cv(
+    fold,
+    X,
+    y,
+    train_idx_list,
+    valid_idx_list,
+    chosen_classes,
+    log_loss_list,
+    temp_param_combo,
+):
     """Run the cross-validation."""
     train_idx = train_idx_list[fold]
     valid_idx = valid_idx_list[fold]
@@ -135,7 +148,13 @@ def run_cv(fold, X, y, train_idx_list, valid_idx_list, chosen_classes, log_loss_
         class_name = y_temp.columns[0]
 
         # Intiialize the classifier
-        model = linear_model.LogisticRegression(random_state=0, max_iter=1e10)
+        temp_param_combo
+        model = linear_model.LogisticRegression(
+            penalty=temp_param_combo[1],
+            C=temp_param_combo[0],
+            random_state=0,
+            max_iter=1e10,
+        )
 
         ### Is this a bug? There seems to be a class name included in the fit...
         # Fit the model
@@ -161,17 +180,40 @@ def run_cv(fold, X, y, train_idx_list, valid_idx_list, chosen_classes, log_loss_
 
     log_loss_score = multilabel_log_loss(y_valid=y_valid, y_pred=non_scored_y_valid)
 
-    print(f"Fold={fold}, Log-Loss={log_loss_score}")
+    # print(f"Fold={fold}, Log-Loss={log_loss_score}")
     log_loss_list.append(log_loss_score)
 
 
 if __name__ == "__main__":
+    param_grid = {  # Generate all parameter combinations for grid search
+        # "Penalty": ["l1", "l2"],
+        "Penalty": ["l2"],
+        "C": [0.001, 0.01, 0.1, 1, 10, 100],
+    }
+    param_names = sorted(param_grid)
+    # Reference: https://stackoverflow.com/questions/38721847/how-to-generate-all-combination-from-values-in-dict-of-lists-in-python
+    param_combos = itertools.product(*(param_grid[p_name] for p_name in param_names))
+    param_combos_list = list(param_combos)
+
+    ### Note: In the future this should allow for feature engineering.
+    # Preprocess the data
     X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data()
 
-    log_loss_list = []
-    for fold_ in range(5):
-        run_cv(
-            fold_, X, y, train_idx_list, valid_idx_list, chosen_classes, log_loss_list
-        )
+    # Loop through the grid search parameters
+    for p_combo_idx in range(len(param_combos_list)):
+        temp_param_combo = param_combos_list[p_combo_idx]  # (C, Penalty)
 
-    print(f"CV average={np.mean(log_loss_list)}")
+        log_loss_list = []  # Do CV on the gridsearch combo
+        for fold_ in range(5):
+            run_cv(
+                fold_,
+                X,
+                y,
+                train_idx_list,
+                valid_idx_list,
+                chosen_classes,
+                log_loss_list,
+                temp_param_combo,
+            )
+
+        print(f"CV average={np.mean(log_loss_list)}, C={temp_param_combo[0]}")
