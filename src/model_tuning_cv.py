@@ -8,6 +8,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn import linear_model
+from xgboost import XGBClassifier
 import numpy as np
 import pandas as pd
 import itertools
@@ -149,13 +150,22 @@ def run_cv(
         class_name = y_temp.columns[0]
 
         # Intiialize the classifier
-        temp_param_combo
-        model = linear_model.LogisticRegression(
-            penalty=temp_param_combo[1],
-            C=temp_param_combo[0],
-            random_state=0,
-            max_iter=1e10,
+        model = XGBClassifier(
+            learning_rate=temp_param_combo[0],
+            gamma=temp_param_combo[1],
+            max_depth=temp_param_combo[2],
+            min_child_weight=temp_param_combo[3],
+            subsample=temp_param_combo[4],
+            colsample_bytree=temp_param_combo[5],
+            reg_lambda=temp_param_combo[6],
+            reg_alpha=temp_param_combo[7],
         )
+        # model = linear_model.LogisticRegression(
+        #     penalty=temp_param_combo[0],
+        #     C=temp_param_combo[1],
+        #     random_state=0,
+        #     max_iter=1e10,
+        # )
 
         ### Is this a bug? There seems to be a class name included in the fit...
         # Fit the model
@@ -187,11 +197,18 @@ def run_cv(
 
 if __name__ == "__main__":
     param_grid = {  # Generate all parameter combinations for grid search
-        # "Penalty": ["l1", "l2"],
-        "Penalty": ["l2"],
-        "C": [0.001, 0.01, 0.1, 1, 10, 100],
+        # "Penalty": ["l2"],
+        # "C": [0.001, 0.01, 0.1, 1, 10, 100],
+        "eta": [0.01, 0.015, 0.025, 0.05, 0.1],
+        "gamma": [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0],
+        "max_depth": [3, 5, 7, 9, 12, 15, 17, 25],
+        "min_child_weight": [1, 3, 5, 7],
+        "subsample": [0.6, 0.7, 0.8, 0.9, 1.0],
+        "colsample_bytree": [0.6, 0.7, 0.8, 0.9, 1.0],
+        "lambda": [0.01, 0.1, 1.0],
+        "alpha": [0, 0.1, 0.5, 1.0],
     }
-    param_names = sorted(param_grid)
+    param_names = [key for key in param_grid.keys()]  # Create parameter combinations
     # Reference: https://stackoverflow.com/questions/38721847/how-to-generate-all-combination-from-values-in-dict-of-lists-in-python
     param_combos = itertools.product(*(param_grid[p_name] for p_name in param_names))
     param_combos_list = list(param_combos)
@@ -217,4 +234,4 @@ if __name__ == "__main__":
                 temp_param_combo,
             )
 
-        print(f"CV average={np.mean(log_loss_list)}, C={temp_param_combo[0]}")
+        print(f"CV average={np.mean(log_loss_list)}, Params={temp_param_combo}")

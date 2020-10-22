@@ -6,7 +6,15 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
-from sklearn import linear_model
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBClassifier
+
 import numpy as np
 import pandas as pd
 import itertools
@@ -119,7 +127,8 @@ def run_cv(
     valid_idx_list,
     chosen_classes,
     log_loss_list,
-    temp_param_combo,
+    param_combo_,
+    model,
 ):
     """Run the cross-validation."""
     train_idx = train_idx_list[fold]
@@ -146,15 +155,6 @@ def run_cv(
     for i in ovr_targets:  # Loop through the OVR targets and fit a model
         y_temp = copy.deepcopy(i)
         class_name = y_temp.columns[0]
-
-        # Intiialize the classifier
-        temp_param_combo
-        model = linear_model.LogisticRegression(
-            penalty=temp_param_combo[1],
-            C=temp_param_combo[0],
-            random_state=0,
-            max_iter=1e10,
-        )
 
         ### Is this a bug? There seems to be a class name included in the fit...
         # Fit the model
@@ -184,36 +184,138 @@ def run_cv(
     log_loss_list.append(log_loss_score)
 
 
-if __name__ == "__main__":
-    param_grid = {  # Generate all parameter combinations for grid search
-        # "Penalty": ["l1", "l2"],
-        "Penalty": ["l2"],
-        "C": [0.001, 0.01, 0.1, 1, 10, 100],
-    }
-    param_names = sorted(param_grid)
-    # Reference: https://stackoverflow.com/questions/38721847/how-to-generate-all-combination-from-values-in-dict-of-lists-in-python
-    param_combos = itertools.product(*(param_grid[p_name] for p_name in param_names))
-    param_combos_list = list(param_combos)
+def set_model_params(clf_name, params):
+    """Set the parameters for a model during grid search."""
+    if clf_name == "log_reg":
+        model = LogisticRegression(
+            penalty=params[0],
+            C=params[1],
+            random_state=0,
+            max_iter=1e10,
+        )
+    elif clf_name == "svm":
+        model = SVC(
+            C=params[0], gamma=params[1], class_weight=params[2], probability=params[3]
+        )
+    elif clf_name == "rf":
+        model = RandomForestClassifier(
+            n_estimators=params[0],
+            max_depth=params[1],
+            min_samples_split=params[2],
+            min_samples_leaf=params[3],
+            max_features=params[4],
+        )
+    elif clf_name == "dt":
+        model = DecisionTreeClassifier(
+            max_depth=params[0],
+            min_samples_split=params[1],
+            min_samples_leaf=params[2],
+            max_features=params[3],
+        )
+    elif clf_name == "knn":
+        model = KNeighborsClassifier(n_neighbors=params[0], p=params[1])
+    elif clf_name == "nb":
+        model = GaussianNB()
+    elif clf_name == "xgb":
+        model = XGBClassifier(
+            learning_rate=params[0],
+            gamma=params[1],
+            max_depth=params[2],
+            min_child_weight=params[3],
+            subsample=params[4],
+            colsample_bytree=params[5],
+            reg_lambda=params[6],
+            reg_alpha=params[7],
+        )
 
+    return model
+
+
+if __name__ == "__main__":
+    # clf_list = ["log_reg", "svm", "rf", "df", "knn", "nb"]
+    clf_list = ["svm"]
+    param_grid = {
+        "log_reg": {
+            "Penalty": ["l2"],
+            "C": [0.001, 0.01, 0.1, 1],
+        },
+        "svm": {
+            "C": [round((0.1) * ((0.1) ** (n - 1)), 5) for n in reversed(range(-1, 2))],
+            "gamma": ["auto"],
+            "class_weight": ["balanced"],
+            "probability": [True],
+        },
+        "rf": {
+            "n_estimators": [120, 800],
+            "max_depth": [5, 25],
+            "min_samples_split": [1, 100],
+            "min_samples_leaf": [1, 10],
+            "max_features": ["log2"],
+        },
+        "df": {
+            "max_depth": [5, 25],
+            "min_samples_split": [1, 10],
+            "min_samples_leaf": [1, 10],
+            "max_features": ["log2"],
+        },
+        "knn": {
+            "n_neighbors": [round((2) * ((2) ** (n - 1)), 5) for n in range(1, 3)],
+            "p": [2, 3],
+        },
+        "nb": {"dummy_param": [None, None]},
+        "xgb": {
+            "eta": [0.01, 0.015, 0.025, 0.05, 0.1],
+            "gamma": [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0],
+            "max_depth": [3, 5, 7, 9, 12, 15, 17, 25],
+            "min_child_weight": [1, 3, 5, 7],
+            "subsample": [0.6, 0.7, 0.8, 0.9, 1.0],
+            "colsample_bytree": [0.6, 0.7, 0.8, 0.9, 1.0],
+            "lambda": [0.01, 0.1, 1.0],
+            "alpha": [0, 0.1, 0.5, 1.0],
+        },
+    }
     ### Note: In the future this should allow for feature engineering.
     # Preprocess the data
     X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data()
 
-    # Loop through the grid search parameters
-    for p_combo_idx in range(len(param_combos_list)):
-        temp_param_combo = param_combos_list[p_combo_idx]  # (C, Penalty)
+    historic_log_loss_list = []
+    for clf_idx in clf_list:  # Loop through models
+        print(f"Classifier: {clf_idx}")
+        clf_param_grid = param_grid[clf_idx]
 
-        log_loss_list = []  # Do CV on the gridsearch combo
-        for fold_ in range(5):
-            run_cv(
-                fold_,
-                X,
-                y,
-                train_idx_list,
-                valid_idx_list,
-                chosen_classes,
-                log_loss_list,
-                temp_param_combo,
+        param_names = [
+            key for key in clf_param_grid.keys()
+        ]  # Create parameter combinations
+        param_combos = itertools.product(
+            *(clf_param_grid[p_name] for p_name in param_names)
+        )
+        param_combos_list = list(param_combos)
+        total_param_combos = len(param_combos_list)
+
+        for p_combo_idx in range(total_param_combos):  # Loop through parameters
+            # Intiialize the classifier
+            print(
+                f"Parameter combination index: {p_combo_idx + 1} out of {total_param_combos}"
             )
+            param_combo_ = param_combos_list[p_combo_idx]
+            model_ = set_model_params(clf_name=clf_idx, params=param_combo_)
 
-        print(f"CV average={np.mean(log_loss_list)}, C={temp_param_combo[0]}")
+            log_loss_list = []  # Do CV on the gridsearch combo
+            for fold_ in range(5):
+                run_cv(
+                    fold_,
+                    X,
+                    y,
+                    train_idx_list,
+                    valid_idx_list,
+                    chosen_classes,
+                    log_loss_list,
+                    param_combo_,
+                    model_,
+                )
+
+            mean_log_loss = np.mean(log_loss_list)
+            print(f"CV average={mean_log_loss}, Params={param_combo_}")
+            historic_log_loss_list.append(
+                [clf_idx, param_combo_, log_loss_list, mean_log_loss]
+            )
