@@ -31,6 +31,9 @@ import config
 
 def class_wise_log_loss(y_true, y_hat):
     """Calculate the log-loss for just a chosen class."""
+    dummy_zero = 1 * 10 ** (-15)  # Compensate for 0's and 1's predictions
+    y_hat.replace(0, dummy_zero, inplace=True)
+    y_hat.replace(1, 1 - dummy_zero, inplace=True)
     class_log_loss = y_true * np.log(y_hat) + (1 - y_true) * np.log(1 - y_hat)
     class_log_loss = -np.mean(class_log_loss)
 
