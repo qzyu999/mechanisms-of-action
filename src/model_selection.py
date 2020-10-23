@@ -233,14 +233,14 @@ if __name__ == "__main__":
         },
         "nb": {"dummy_param": [None]},
         "xgb": {
-            "eta": [0.015, 0.01, 0.1],
-            "gamma": [0.05, 1.0],
+            "eta": [0.015, 0.1],
+            "gamma": [0.05],
             "max_depth": [3, 25],
             "min_child_weight": [1, 7],
             "subsample": [0.6, 1.0],
             "colsample_bytree": [0.6, 1.0],
-            "lambda": [0.01, 0.1, 1.0],
-            "alpha": [0.1, 0.5, 1.0],
+            "lambda": [0.01],
+            "alpha": [0.1],
         },
     }
 
