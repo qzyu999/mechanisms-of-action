@@ -200,8 +200,8 @@ def set_model_params(clf_name, params):
 
 
 if __name__ == "__main__":
-    # clf_list = ["log_reg", "svm", "rf", "df", "knn", "nb", "xgb"]
-    clf_list = ["log_reg", "rf", "df", "knn", "nb", "xgb"]
+    # clf_list = ["log_reg", "svm", "rf", "dt", "knn", "nb", "xgb"]
+    clf_list = ["log_reg", "rf", "dt", "knn", "nb", "xgb"]
 
     param_grid = {
         "log_reg": {
@@ -221,7 +221,7 @@ if __name__ == "__main__":
             "min_samples_leaf": [2, 10],
             "max_features": ["log2"],
         },
-        "df": {
+        "dt": {
             "max_depth": [5, 25],
             "min_samples_split": [2, 100],
             "min_samples_leaf": [2, 10],
