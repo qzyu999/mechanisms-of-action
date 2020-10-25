@@ -246,7 +246,7 @@ if __name__ == "__main__":
 
     ### Note: In the future this should allow for feature engineering.
     # Preprocess the data
-    X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data()
+    X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data(num_retained_classes=12)
 
     result_dict = {}  # Create a dictionary to store results
     for class_ in chosen_classes:
