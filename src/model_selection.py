@@ -40,7 +40,7 @@ def class_wise_log_loss(y_true, y_hat):
     return class_log_loss
 
 
-def preprocess_data():
+def preprocess_data(num_retained_classes=12):
     """Preprocess the data."""
     X = pd.read_csv(config.FEATURES_FILE)
     X.drop(X.columns[0], axis=1, inplace=True)
@@ -54,7 +54,7 @@ def preprocess_data():
 
     class_counts = y.iloc[:, 1:].sum(axis=0)
     class_counts = class_counts.sort_values(ascending=False)
-    class_counts_sub = class_counts.head(13)
+    class_counts_sub = class_counts.head(num_retained_classes+1)
     chosen_classes = class_counts_sub.index.values
 
     # Save the column names
@@ -215,30 +215,30 @@ if __name__ == "__main__":
             "probability": [True],
         },
         "rf": {
-            "n_estimators": [120, 500, 800],
-            "max_depth": [5, 30],
-            "min_samples_split": [2, 100],
-            "min_samples_leaf": [2, 10],
+            "n_estimators": [120],
+            "max_depth": [8],
+            "min_samples_split": [10],
+            "min_samples_leaf": [10],
             "max_features": ["log2"],
         },
         "dt": {
-            "max_depth": [5, 25],
-            "min_samples_split": [2, 100],
-            "min_samples_leaf": [2, 10],
-            "max_features": ["log2", "sqrt"],
+            "max_depth": [8],
+            "min_samples_split": [10],
+            "min_samples_leaf": [10],
+            "max_features": ["log2"],
         },
         "knn": {
-            "n_neighbors": [round((2) * ((2) ** (n - 1)), 5) for n in range(1, 5)],
-            "p": [2, 3],
+            "n_neighbors": [round((2) * ((2) ** (n - 1)), 5) for n in range(1, 3)],
+            "p": [2],
         },
         "nb": {"dummy_param": [None]},
         "xgb": {
-            "eta": [0.015, 0.1],
+            "eta": [0.01],
             "gamma": [0.05],
-            "max_depth": [3, 25],
-            "min_child_weight": [1, 7],
-            "subsample": [0.6, 1.0],
-            "colsample_bytree": [0.6, 1.0],
+            "max_depth": [8],
+            "min_child_weight": [1],
+            "subsample": [0.6],
+            "colsample_bytree": [0.6],
             "lambda": [0.01],
             "alpha": [0.1],
         },
@@ -256,8 +256,10 @@ if __name__ == "__main__":
         result_dict[class_] = temp_clf_dict
 
     # For each class fit a model using grid search
-    for class_idx in chosen_classes:  # Loop through classes
-        print(f"Class: {class_idx}")
+    chosen_classes_list = chosen_classes.tolist()
+    for class_idx in chosen_classes: # Loop through classes
+        ith_class = chosen_classes_list.index(class_idx)
+        print(f"Class: {class_idx}, index {ith_class + 1} out of {len(chosen_classes_list)}")
         for clf_idx in clf_list:  # Loop through models
             print(f"Classifier: {clf_idx}")
 
