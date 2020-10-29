@@ -286,7 +286,8 @@ def preprocess_data(num_retained_classes=12):
 
     # Save the column names
     X_col_names = X.columns.tolist()
-    cat_cols = ["cp_type", "cp_time", "cp_dose", "new_feature"]  # Identify categorical columns
+    cat_cols = ["cp_type", "cp_time", "cp_dose"]  # Identify categorical columns
+    # cat_cols = ["cp_type", "cp_time", "cp_dose", "new_feature"]  # Identify categorical columns
     ohe = OneHotEncoder()  # Load OHE
 
     _ = ohe.fit_transform(X.loc[:,cat_cols])
