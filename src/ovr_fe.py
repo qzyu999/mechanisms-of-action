@@ -267,11 +267,11 @@ def preprocess_data(num_retained_classes=12):
     
     ### FE 2
     # Combine the categorical variables into a single new feature
-    new_feature = (X.cp_type.astype(str) + "_" +
-        X.cp_time.astype(str) + "_" +
-        X.cp_dose.astype(str))
+    # new_feature = (X.cp_type.astype(str) + "_" +
+    #     X.cp_time.astype(str) + "_" +
+    #     X.cp_dose.astype(str))
     ### Hard-coded insert
-    X.insert(3, 'new_feature', new_feature)
+    # X.insert(3, 'new_feature', new_feature)
     ### End FE
 
     # Add hidden class
@@ -356,13 +356,13 @@ def run_cv(
     ### Add features in-between CV folds
     ### FE 3
     # Save counts of categorical variables from X_train to X_valid
-    orig_colnames = X.columns
-    x_train, x_valid = add_FE3(x_train=x_train, x_valid=x_valid, orig_colnames=orig_colnames)
+    # orig_colnames = X.columns
+    # x_train, x_valid = add_FE3(x_train=x_train, x_valid=x_valid, orig_colnames=orig_colnames)
     
     ### FE 4
     # Save batches of PC's from X_train to X_valid
-    orig_colnames = x_train.columns # Update col names
-    x_train, x_valid = add_PCA(x_train, x_valid, orig_colnames, batch_size=100)
+    # orig_colnames = x_train.columns # Update col names
+    # x_train, x_valid = add_PCA(x_train, x_valid, orig_colnames, batch_size=100)
     ### End adding features
     
     # Apply feature scaling to the numeric attributes
@@ -441,7 +441,8 @@ if __name__ == "__main__":
     # Save results to csv
     result_dict_list = [dict(class_name=i, clf_result=j) for i, j in result_dict.items()]
     fieldnames = ["class_name", "clf_result"]
-    with open(config.OUTPUT_FE_DICT, "w") as f:
+    # with open(config.OUTPUT_FE_DICT, "w") as f:
+    with open("../output/fe1.csv", "w") as f:
         w = csv.DictWriter(f, fieldnames)
         w.writeheader()
         w.writerows(result_dict_list)
