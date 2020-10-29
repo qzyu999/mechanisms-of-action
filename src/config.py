@@ -18,3 +18,5 @@ OUTPUT_FILE = "../output/submission.csv"
 OUTPUT_BEST_DICT = "../output/best_dict.csv"
 
 OUTPUT_STAT_DICT = "../output/stat_dict.csv"
+
+OUTPUT_FE_DICT = "../output/fe_dict.csv"

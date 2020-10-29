@@ -54,7 +54,7 @@ def preprocess_data(num_retained_classes=12):
 
     class_counts = y.iloc[:, 1:].sum(axis=0)
     class_counts = class_counts.sort_values(ascending=False)
-    class_counts_sub = class_counts.head(num_retained_classes+1)
+    class_counts_sub = class_counts.head(num_retained_classes + 1)
     chosen_classes = class_counts_sub.index.values
 
     # Save the column names
@@ -246,7 +246,9 @@ if __name__ == "__main__":
 
     ### Note: In the future this should allow for feature engineering.
     # Preprocess the data
-    X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data(num_retained_classes=12)
+    X, y, train_idx_list, valid_idx_list, chosen_classes = preprocess_data(
+        num_retained_classes=12
+    )
 
     result_dict = {}  # Create a dictionary to store results
     for class_ in chosen_classes:
@@ -257,9 +259,11 @@ if __name__ == "__main__":
 
     # For each class fit a model using grid search
     chosen_classes_list = chosen_classes.tolist()
-    for class_idx in chosen_classes: # Loop through classes
+    for class_idx in chosen_classes:  # Loop through classes
         ith_class = chosen_classes_list.index(class_idx)
-        print(f"Class: {class_idx}, index {ith_class + 1} out of {len(chosen_classes_list)}")
+        print(
+            f"Class: {class_idx}, index {ith_class + 1} out of {len(chosen_classes_list)}"
+        )
         for clf_idx in clf_list:  # Loop through models
             print(f"Classifier: {clf_idx}")
 
